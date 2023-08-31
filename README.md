@@ -1,1 +1,36 @@
 # CodeClauseInternship_Spam-Classifier
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, classification_report
+
+# Load the dataset
+data = pd.read_csv('/content/class_data.csv', encoding='latin-1')
+data = data[['v1', 'v2']]
+data.columns = ['label', 'text']
+
+# Convert labels to binary values
+data['label'] = data['label'].map({'ham': 0, 'spam': 1})
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(data['text'], data['label'], test_size=0.2, random_state=42)
+
+# Create a CountVectorizer to convert text data to numerical features
+vectorizer = CountVectorizer()
+X_train_vectorized = vectorizer.fit_transform(X_train)
+X_test_vectorized = vectorizer.transform(X_test)
+
+# Train a Naive Bayes classifier
+classifier = MultinomialNB()
+classifier.fit(X_train_vectorized, y_train)
+
+# Predict on the test set
+y_pred = classifier.predict(X_test_vectorized)
+
+# Evaluate the classifier
+accuracy = accuracy_score(y_test, y_pred)
+report = classification_report(y_test, y_pred, target_names=['ham', 'spam'])
+
+print("Accuracy:", accuracy)
+print("Classification Report:\n", report)
